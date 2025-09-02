@@ -1,9 +1,10 @@
 esphome:
   name: $device_name
-  platform: ESP8266
+
+esp8266:
   board: esp01_1m
   #断电记忆，恢复上次的状态
-  esp8266_restore_from_flash: yes
+  restore_from_flash: yes
 #----------------------------------------------------
   #指定编译临时文件存放位置
   build_path: build/$device_name
@@ -12,7 +13,7 @@ esphome:
 #------- 一些自定义的配置，一般情况下只需要改这下面的内容 -------
 
 substitutions:
-  config_version: 'v2019.12.26.001'
+  config_version: 'v2025.09.02.001'
   #设备名称（多个dc1改成不一样的，API接入和ESPHOME容器会识别这个作为名称显示）
   device_name: phicomm_dc1_api
   #如果SSID是隐藏的，设置为true
@@ -23,6 +24,10 @@ substitutions:
   api_reboot_timeout: 0s
   #电量统计的数据刷新时间（内部刷新时间，非上报周期），秒s/分钟min/小时h
   cse7766_update_interval: 1s
+
+external_components:
+  - source: ./esphome/components
+    components: [cat9554]
 
 #------- WIFI配置 -------
 wifi:
@@ -93,7 +98,8 @@ cat9554:
 uart:
   rx_pin: GPIO13
   baud_rate: 4800
-
+  parity: EVEN
+ 
 #------- 是否开启DEBUG模式，logger的level需至少设置为DEBUG -------
 debug:
 
