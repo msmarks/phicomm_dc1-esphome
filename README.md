@@ -1,3 +1,10 @@
+## 迁移到ESPHome version 2025.7.5
+
+由于老的项目已经achieve，而新版本esphome在api结构上变动很多，所以fork源项目适配了新的API，主要改动
+- CSE7766现在强制要求parity:EVEN
+- 自定义组件现在强制要求使用external_components定义
+- 修改了CAT9554的语法
+
 ## 斐讯DC1插座利用ESPHome自制固件方式接入开源智能家居平台
 
 ![image](https://github.com/Samuel-0-0/dc1-esphome-home-assistant/blob/master/image/%E4%BA%A7%E5%93%81%E5%9B%BE2.jpg?raw=true)
