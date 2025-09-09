@@ -57,8 +57,8 @@ api:
 
 #------- OTA 空中升级配置 -------
 ota:
-  safe_mode: true
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 #  port: 3286
 
 #------- WEB后台，不建议使用 -------
