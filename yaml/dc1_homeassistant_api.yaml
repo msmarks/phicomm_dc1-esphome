@@ -111,11 +111,19 @@ sensor:
   - platform: cse7766
     voltage:
       name: "${device_name} voltage"
+      entity_category: diagnostic
+      filters:
+        - throttle_average: $cse7766_update_interval
     current:
       name: "${device_name} current"
+      entity_category: diagnostic
+      filters:
+        - throttle_average: $cse7766_update_interval
     power:
       name: "${device_name} power"
-    update_interval: $cse7766_update_interval
+      entity_category: diagnostic
+      filters:
+        - throttle_average: $cse7766_update_interval
   - platform: uptime
     name: "${device_name} uptime"
   - platform: wifi_signal
