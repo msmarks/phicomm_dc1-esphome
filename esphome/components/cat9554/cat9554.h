@@ -35,7 +35,7 @@ class CAT9554Component : public Component, public i2c::I2CDevice {
   void dump_config() override;
 
   /// Setup irq pin.
-  void set_irq_pin(GPIOPin *irq_pin) {
+  void set_irq_pin(InternalGPIOPin *irq_pin) {
     enable_irq_ = true;
     irq_pin_ = irq_pin;
   }
@@ -57,7 +57,7 @@ class CAT9554Component : public Component, public i2c::I2CDevice {
   /// IRQ is enabled.
   bool enable_irq_{false};
   /// IRQ pin.
-  GPIOPin *irq_pin_;
+  InternalGPIOPin *irq_pin_;
   /// Need update GPIO
   bool update_gpio_{false};
   /// Storage for last I2C error seen
