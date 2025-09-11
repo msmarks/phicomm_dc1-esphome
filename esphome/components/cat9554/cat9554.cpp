@@ -6,6 +6,11 @@ namespace cat9554 {
 
 static const char *const TAG = "cat9554";
 
+// IRQ中断服务程序 - 正确的签名
+static void IRAM_ATTR gpio_intr(bool *need_update_gpio) { 
+  *need_update_gpio = true; 
+}
+
 void CAT9554Component::setup() {
   // Test to see if device exists
   if (!this->read_inputs_()) {
@@ -16,8 +21,10 @@ void CAT9554Component::setup() {
 
   // Set up IRQ pin if configured
   if (this->enable_irq_) {
+    ESP_LOGD(TAG, "Setting up IRQ pin with interrupt");
     this->irq_pin_->setup();
     this->irq_pin_->pin_mode(gpio::FLAG_INPUT);
+    this->irq_pin_->attach_interrupt(gpio_intr, &this->update_gpio_, gpio::INTERRUPT_FALLING_EDGE);
     this->update_gpio_ = false;
   }
 
@@ -36,10 +43,11 @@ void CAT9554Component::setup() {
 void CAT9554Component::loop() {
   bool need_update = false;
   
-  // Check IRQ pin if enabled
-  if (this->enable_irq_ && !this->irq_pin_->digital_read()) {
+  // 检查中断标志（而不是引脚状态）
+  if (this->enable_irq_ && this->update_gpio_) {
     need_update = true;
-    this->update_gpio_ = false;
+    this->update_gpio_ = false;  // 清除中断标志
+    ESP_LOGD(TAG, "IRQ triggered, updating GPIO inputs");
   }
   
   // Update inputs if needed or no IRQ
@@ -60,13 +68,15 @@ void CAT9554Component::dump_config() {
 }
 
 bool CAT9554Component::digital_read(uint8_t pin) {
-  // Note: We want to try and avoid doing any I2C bus read transactions here
-  // to conserve I2C bus bandwidth. So what we do is check to see if we
-  // have seen a read during the time esphome is running this loop. If we have,
-  // we do an I2C bus transaction to get the latest value. If we haven't
-  // we return a cached value which was read at the time loop() was called.
-  if (this->was_previously_read_ & (1 << pin))
+  // 如果启用了IRQ并且有更新需求，或者没有启用IRQ但之前读取过这个引脚
+  if ((!this->enable_irq_ && (this->was_previously_read_ & (1 << pin))) || 
+      (this->enable_irq_ && this->update_gpio_)) {
     this->read_inputs_();  // Force a read of a new value
+    if (this->enable_irq_) {
+      this->update_gpio_ = false;  // 清除IRQ标志
+    }
+  }
+  
   // Indicate we saw a read request for this pin in case a
   // read happens later in the same loop.
   this->was_previously_read_ |= (1 << pin);
